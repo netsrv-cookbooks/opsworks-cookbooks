@@ -61,6 +61,21 @@ node[:deploy].each do |app_name, deploy|
     EOH
   end
   
+  node['wordpress']['plugins'].each do |plugin_name, plugin|
+
+    remote_file "/usr/src/plugin_#{plugin_name}.zip" do
+      action :create_if_missing
+      source plugin[:download]
+    end
+
+    execute "extract plugin #{plugin_name} to #{deploy[:deploy_to]}/current" do
+      # Overwrite without prompting
+      command "unzip -o /usr/src/plugin_#{plugin_name}.zip"
+      cwd "#{deploy[:deploy_to]}/current/wp-content/plugins"
+    end
+
+  end
+
   template "#{deploy[:deploy_to]}/current/wp-config.php" do
     source "wp-config.php.erb"
     mode 0660

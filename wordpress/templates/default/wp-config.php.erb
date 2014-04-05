@@ -44,14 +44,6 @@ define('DB_COLLATE', '');
  */
 <%= @keys %>
 
-<% if node['wordpress']['wp_config']['enable_W3TC']==true -%>
-/** 
- * Enable W3 Total Cache
- */
-define('WP_CACHE', true); // Added by W3 Total Cache
-define('COOKIE_DOMAIN', '');
-<% end -%>
-
 <% if node['wordpress']['wp_config']['force_secure_logins']==true -%>
 /**
  * Secure Logins
@@ -88,6 +80,11 @@ define ('WPLANG', '');
 /** WordPress absolute path to the Wordpress directory. */
 if ( !defined('ABSPATH') )
         define('ABSPATH', dirname(__FILE__) . '/');
+
+/** Plugin configuration */
+<% node['wordpress']['plugins'].each do | plugin_name, plugin | -%>
+<%= render "plugins/#{plugin_name}.erb" %>
+<% end -%>
 
 /** Allow per project addition configuration */
 if( file_exists(ABSPATH . 'wp-config-custom.php') )
