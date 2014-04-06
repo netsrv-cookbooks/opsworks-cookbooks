@@ -38,20 +38,34 @@ node[:deploy].each do |app_name, deploy|
     next
   end
   
-  # Use user supplied configuration (e.g. for RDS) and fall back to stack configured
-  # Placed early so as to fail fast
   begin
-    db_name     = node[:wordpress][app_name][:db_name] rescue deploy[:database][:database]
-    db_user     = node[:wordpress][app_name][:db_user] rescue deploy[:database][:username]
-    db_password = node[:wordpress][app_name][:db_password] rescue deploy[:database][:password]
-    db_host     = node[:wordpress][app_name][:db_host] rescue deploy[:database][:host]
-  rescue 
-    Chef::Log.error('Cannot resolve database configuration from either stack config or user supplied data')
-    Chef::Log.warn("Application (#{app_name}) may not work correctly due to configuration error")
-    next
+    if node[:wordpress][:use_stack_database]
+      # For when a database layer is added to the stack
+      Chef::Log.info('Using stack database')
+      db_name = deploy[:database][:database]
+      db_user =  deploy[:database][:username]
+      db_password = deploy[:database][:password]
+      db_host = deploy[:database][:host]
+    else
+      # For when an external DB is used (e.g. RDS, self-hosted, etc)
+      Chef::Log.info('Using external database')
+      db_name = node[:wordpress][app_name][:db_name]
+      db_user = node[:wordpress][app_name][:db_user]
+      db_password = node[:wordpress][app_name][:db_password]
+      db_host = node[:wordpress][app_name][:db_host]
+    end
+  rescue StandardError => e
+    Chef::Log.error e.message
+    raise 'Failed to resolve database configuration, see logs for more information.'
   end
+  
+  # Check we have everything we need
+  raise 'Database name cannot be empty.' if db_name.empty?
+  raise 'Database username cannot be empty.' if db_user.empty?
+  raise 'Database password cannot be empty.' if db_password.empty?
+  raise 'Database host cannot be empty.' if db_host.empty?
 
-  Chef::Log.info("Configuring Wordpress to connect to #{db_host}/#{db_name} as #{db_user}")
+  Chef::Log.info("Wordpress database: #{db_host}/#{db_name} connecting as #{db_user}")
   
   bash "extract wordpress to #{deploy[:deploy_to]}/current" do
     code <<-EOH
