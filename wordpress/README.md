@@ -4,11 +4,33 @@ Extracts the Wordpress installation over the top of an OpsWorks app and builds t
 ## Usage
 Include wordpress::deploy in your stack's Deploy phase run list.
 
-If the project needs to specify additional config that would normally be place in wp-config.php you can create a
-file called wp-config-custom.php.  This is conditionally required once after the other config has been applied.
+If the project needs to specify additional config that would normally be in wp-config.php you can create a
+file called wp-config-custom.php within the project.  This is conditionally required once after the other config has been applied.
 
 Wordpress will only deployed if the app is listed in `['wordpress']['apps']` (array of Strings).  This allows other
 non-Wordpress PHP apps to be deployed to the same node without polluting them.
+
+### Plugins
+Wordpress sites often have a lot of plugins to enable functionality.  Unfortunately, when operating in a fully automated
+multi-server environment the tools used to manage WP plugins are not ideal - if the user installs/updates a plugin, how
+it that then replicated the next time an instance starts?
+
+To work around this the cookbook will install a list of plugins as part of its deployment from the stack configuration
+
+    {
+      "wordpress": {
+        "apps" : [ "mywordpressappname" ],
+        "plugins" : [{
+	        "name" : "addthis",
+            "download" : "http:://downloads.wordpress.org/plugin/addthis.3.5.9.zip",
+            "has_config" : false
+        }]
+      }
+    }
+
+The `has_config` boolean value indicates where there is additional configuration available for this plugin.  If true
+ template/default/plugins/ will be searched for a partial erb template to merge into wp-config.php.  The partial template
+should have the same name as the plugin with the .erb extension.
 
 ### Using a custom database
 You may not want the DB to be setup within the OpsWorks stack, it might be an RDS instance or a box you manage.  By
