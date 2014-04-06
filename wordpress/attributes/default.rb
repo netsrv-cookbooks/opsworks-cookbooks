@@ -8,6 +8,5 @@ default['wordpress']['wp_config']['force_secure_logins'] = false
 default['wordpress']['download'] = "http://wordpress.org/latest.tar.gz"
 
 default['wordpress']['plugins']['w3tc']['download'] = 'http://downloads.wordpress.org/plugin/w3-total-cache.0.9.4.zip'
-default['wordpress']['plugins']['w3tc']['enabled'] = true
 
 default['wordpress']['use_stack_database'] = true

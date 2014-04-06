@@ -22,15 +22,12 @@ To work around this the cookbook will install a list of plugins as part of its d
         "apps" : [ "mywordpressappname" ],
         "plugins" : [{
 	        "name" : "addthis",
-            "download" : "http:://downloads.wordpress.org/plugin/addthis.3.5.9.zip",
-            "has_config" : false
+            "download" : "http:://downloads.wordpress.org/plugin/addthis.3.5.9.zip"
         }]
       }
     }
 
-The `has_config` boolean value indicates where there is additional configuration available for this plugin.  If true
- template/default/plugins/ will be searched for a partial erb template to merge into wp-config.php.  The partial template
-should have the same name as the plugin with the .erb extension.
+If the plugins need additional config, place this in your wp-config-custom.php.
 
 ### Using a custom database
 You may not want the DB to be setup within the OpsWorks stack, it might be an RDS instance or a box you manage.  By

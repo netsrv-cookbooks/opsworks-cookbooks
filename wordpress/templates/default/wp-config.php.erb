@@ -81,14 +81,6 @@ define ('WPLANG', '');
 if ( !defined('ABSPATH') )
         define('ABSPATH', dirname(__FILE__) . '/');
 
-/** Plugin configuration */
-<% node[:wordpress][:plugins].each do |plugin| -%>
-  <% if plugin.is_a?(Hash) && plugin.has_key?('has_config') -%>
-    <% name = plugin['name'] rescue nil -%>
-    <%= render "plugins/#{name}.erb"  %>
-  <% end -%>    
-<% end -%>
-
 /** Allow per project addition configuration */
 if( file_exists(ABSPATH . 'wp-config-custom.php') )
 	require_once(ABSPATH . 'wp-config-custom.php');
