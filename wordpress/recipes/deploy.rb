@@ -72,8 +72,16 @@ node[:deploy].each do |app_name, deploy|
     EOH
   end
   
-  node['wordpress']['plugins'].each do |plugin_name, plugin|
-
+  node['wordpress']['plugins'].each do |plugin|
+    
+    plugin_name = plugin[:name]
+    
+    if plugin_name.empty? || plugin[:download].empty?
+      name ||= 'not configured'
+      Chef::Log.warn("Skipping plugin with invalid configuration, name: #{plugin_name}")
+      next
+    end
+    
     remote_file "/usr/src/plugin_#{plugin_name}.zip" do
       action :create_if_missing
       source plugin[:download]
