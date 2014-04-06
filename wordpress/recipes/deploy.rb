@@ -87,18 +87,6 @@ node[:deploy].each do |app_name, deploy|
 
   end
 
-  template "#{deploy[:deploy_to]}/current/wp-config.php" do
-    source "wp-config.php.erb"
-    mode 0660
-    variables(
-      :database   => db_name,
-      :user       => db_user,
-      :password   => db_password,
-      :host       => db_host,
-      :keys       => (keys rescue nil)
-    )
-  end
-  
   if platform?("ubuntu")
     httpuser = "www-data"
   elsif platform?("amazon")
@@ -119,6 +107,20 @@ node[:deploy].each do |app_name, deploy|
       chown -R root #{deploy[:deploy_to]}/current/wp-content/themes
       chown -R root #{deploy[:deploy_to]}/current/wp-content/plugins
     EOH
+  end
+  
+  template "#{deploy[:deploy_to]}/current/wp-config.php" do
+    source "wp-config.php.erb"
+    mode 0640
+    owner root
+    group httpuser
+    variables(
+      :database   => db_name,
+      :user       => db_user,
+      :password   => db_password,
+      :host       => db_host,
+      :keys       => (keys rescue nil)
+    )
   end
   
   cron 'wordpress' do
