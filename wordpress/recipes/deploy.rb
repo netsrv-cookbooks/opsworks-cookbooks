@@ -47,7 +47,7 @@ node[:deploy].each do |app_name, deploy|
     db_host     = node[:wordpress][app_name][:db_host] rescue deploy[:database][:host]
   rescue 
     Chef::Log.error('Cannot resolve database configuration from either stack config or user supplied data')
-    Chef::Log.warn("Application (#{app_name}) not deploy due to configuration error")
+    Chef::Log.warn("Application (#{app_name}) may not work correctly due to configuration error")
     next
   end
 
