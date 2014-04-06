@@ -95,14 +95,6 @@ node[:deploy].each do |app_name, deploy|
   template "#{deploy[:deploy_to]}/current/wp-config.php" do
     source "wp-config.php.erb"
     mode 0660
-    group deploy[:group]
-    
-    if platform?("ubuntu")
-      owner "www-data"
-    elsif platform?("amazon")
-      owner "apache"
-    end
-    
     variables(
       :database   => db_name,
       :user       => db_user,
@@ -110,6 +102,28 @@ node[:deploy].each do |app_name, deploy|
       :host       => db_host,
       :keys       => (keys rescue nil)
     )
+  end
+  
+  if platform?("ubuntu")
+    httpuser = "www-data"
+  elsif platform?("amazon")
+    httpuser = "apache"
+  end
+  
+  bash 'set permissions' do
+    code <<-EOH
+      # Reset all ownership
+      chown -R root.root #{deploy[:deploy_to]}/current/
+      find #{deploy[:deploy_to]}/current/ -type d -exec chmod 755 {} \;
+      find #{deploy[:deploy_to]}/current/ -type f -exec chmod 644 {} \;
+      
+      # Allow web server to write user supplied content
+      chown -R #{httpuser} #{deploy[:deploy_to]}/current/wp-content/
+      
+      # Prevent update to theme and plugins
+      chown -R root #{deploy[:deploy_to]}/current/wp-content/themes
+      chown -R root #{deploy[:deploy_to]}/current/wp-content/plugins
+    EOH
   end
   
   cron 'wordpress' do
