@@ -83,8 +83,10 @@ if ( !defined('ABSPATH') )
 
 /** Plugin configuration */
 <% node[:wordpress][:plugins].each do |plugin| -%>
-  <% has_config = plugin[:has_config] rescue nil -%>
-  <%= render "plugins/#{plugin[:name]}.erb" unless has_config.nil? %>
+  <% if plugin.is_a?(Hash) && plugin.has_key?('has_config') -%>
+    <% name = plugin['name'] rescue nil -%>
+    <%= render "plugins/#{name}.erb"  %>
+  <% end -%>    
 <% end -%>
 
 /** Allow per project addition configuration */
