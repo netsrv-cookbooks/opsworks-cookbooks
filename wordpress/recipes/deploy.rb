@@ -51,6 +51,8 @@ node[:deploy].each do |app_name, deploy|
     next
   end
 
+  Chef::Log.info("Configuring Wordpress to connect to #{db_host}/#{db_name} as #{db_user}")
+  
   bash "extract wordpress to #{deploy[:deploy_to]}/current" do
     code <<-EOH
       tmpdir="$(mktemp -d)"
