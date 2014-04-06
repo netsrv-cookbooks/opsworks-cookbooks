@@ -38,25 +38,20 @@ node[:deploy].each do |app_name, deploy|
     next
   end
   
-  begin
-    if node[:wordpress][:use_stack_database]
-      # For when a database layer is added to the stack
-      Chef::Log.info('Using stack database')
-      db_name = deploy[:database][:database]
-      db_user =  deploy[:database][:username]
-      db_password = deploy[:database][:password]
-      db_host = deploy[:database][:host]
-    else
-      # For when an external DB is used (e.g. RDS, self-hosted, etc)
-      Chef::Log.info('Using external database')
-      db_name = node[:wordpress][app_name][:db_name]
-      db_user = node[:wordpress][app_name][:db_user]
-      db_password = node[:wordpress][app_name][:db_password]
-      db_host = node[:wordpress][app_name][:db_host]
-    end
-  rescue StandardError => e
-    Chef::Log.error e.message
-    raise 'Failed to resolve database configuration, see logs for more information.'
+  if node[:wordpress][:use_stack_database]
+    # For when a database layer is added to the stack
+    Chef::Log.info('Using stack database')
+    db_name = deploy[:database][:database] rescue nil
+    db_user =  deploy[:database][:username] rescue nil
+    db_password = deploy[:database][:password] rescue nil
+    db_host = deploy[:database][:host] rescue nil
+  else
+    # For when an external DB is used (e.g. RDS, self-hosted, etc)
+    Chef::Log.info('Using external database')
+    db_name = node[:wordpress][:db_name] rescue nil
+    db_user = node[:wordpress][:db_user] rescue nil
+    db_password = node[:wordpress][:db_password] rescue nil
+    db_host = node[:wordpress][:db_host] rescue nil
   end
   
   # Check we have everything we need
