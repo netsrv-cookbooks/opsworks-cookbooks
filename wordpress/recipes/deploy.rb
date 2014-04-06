@@ -112,7 +112,7 @@ node[:deploy].each do |app_name, deploy|
   template "#{deploy[:deploy_to]}/current/wp-config.php" do
     source "wp-config.php.erb"
     mode 0640
-    owner root
+    owner 'root'
     group httpuser
     variables(
       :database   => db_name,
