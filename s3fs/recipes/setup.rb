@@ -37,7 +37,8 @@ bash 'build s3fs' do
     tmpdir="$(mktemp -d)"
     cd $tmpdir
     tar xzf #{s3fs_distribution} --strip-components=1
-    ./configure --prefix=/usr
+    ./autogen.sh
+    ./configure
     make
     make install
   EOH
