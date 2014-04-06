@@ -82,8 +82,9 @@ if ( !defined('ABSPATH') )
         define('ABSPATH', dirname(__FILE__) . '/');
 
 /** Plugin configuration */
-<% node['wordpress']['plugins'].each do | plugin_name, plugin | -%>
-<%= render "plugins/#{plugin_name}.erb" %>
+<% node[:wordpress][:plugins].each do |plugin| -%>
+  <% has_config = plugin[:has_config] rescue nil -%>
+  <%= render "plugins/#{plugin[:name]}.erb" unless has_config.nil? || has_config == false %>
 <% end -%>
 
 /** Allow per project addition configuration */
